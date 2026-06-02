@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BD2 脉动 - 棕色尘埃2 玩家信息站</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0ff;
+      --primary-dark: #005f6b;
+      --accent: #f0f;
+      --accent2: #0ff;
+      --bg: #0a0c14;
+      --card-bg: rgba(10, 20, 40, 0.8);
+      --text: #e0e0ff;
+      --text-light: #8aa0c0;
+      --border: rgba(0, 255, 255, 0.2);
+      --shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+      --radius: 12px;
+      --transition: all 0.3s ease;
+    }
+    html { font-size: 16px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background-color: var(--bg);
+      background-image: radial-gradient(ellipse at 50% 0%, rgba(0,255,255,0.08) 0%, transparent 60%);
+      color: var(--text); line-height: 1.6;
+      min-height: 100vh; display: flex; flex-direction: column;
+    }
+    body.hide-adult [data-adult="true"] { display: none !important; }
+    header {
+      background: linear-gradient(180deg, rgba(0, 15, 30, 0.95) 0%, rgba(0, 5, 15, 0.98) 100%);
+      color: white; padding: 0.8rem 1.5rem; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap;
+      border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+      position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+    .logo { display: flex; align-items: center; gap: 0.5rem; font-size: 1.5rem; font-weight: 700; font-family: 'Orbitron', sans-serif; letter-spacing: 2px; color: var(--accent2); text-shadow: 0 0 10px var(--accent2); }
+    .logo i { font-size: 2rem; color: var(--accent); }
+    nav { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
+    nav a {
+      color: #8aa0c0; text-decoration: none; font-weight: 500; display: flex; align-items: center;
+      gap: 0.25rem; padding: 0.4rem 0; border-bottom: 2px solid transparent; transition: var(--transition);
+      white-space: nowrap; text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem;
+    }
+    nav a:hover, nav a.active { border-bottom-color: var(--accent2); color: var(--accent2); text-shadow: 0 0 8px var(--accent2); }
+    .header-actions { display: flex; align-items: center; gap: 1rem; position: relative; flex-wrap: wrap; }
+    .user-area { display: flex; align-items: center; gap: 0.5rem; }
+    .user-btn {
+      background: rgba(0,255,255,0.1); border: 1px solid rgba(0,255,255,0.3); color: var(--accent2);
+      padding: 0.4rem 1.2rem; border-radius: 20px; cursor: pointer; font-size: 0.85rem;
+      transition: var(--transition); display: flex; align-items: center; gap: 0.3rem;
+      font-family: 'Orbitron', sans-serif; letter-spacing: 1px;
+    }
+    .user-btn:hover { background: rgba(0,255,255,0.2); box-shadow: 0 0 15px rgba(0,255,255,0.4); }
+    .user-name-btn {
+      font-weight: 500; color: var(--accent2); cursor: pointer;
+      background: none; border: none; font-size: 0.9rem; display: none; align-items: center; gap: 0.3rem;
+      padding: 0.3rem 0.6rem; border-radius: 20px; transition: var(--transition);
+      font-family: 'Orbitron', sans-serif; text-shadow: 0 0 5px var(--accent2);
+    }
+    .user-name-btn:hover { background: rgba(0,255,255,0.15); }
+    .logout-btn {
+      background: none; border: none; color: #8aa0c0; cursor: pointer; font-size: 0.85rem;
+      display: none; align-items: center; gap: 0.2rem; font-family: 'Orbitron', sans-serif;
+    }
+    .lang-select {
+      background: rgba(0,255,255,0.1); border: 1px solid rgba(0,255,255,0.3);
+      color: var(--accent2); padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.9rem;
+      cursor: pointer; display: flex; align-items: center; gap: 0.3rem; transition: var(--transition);
+      font-family: 'Orbitron', sans-serif;
+    }
+    .lang-select:hover { background: rgba(0,255,255,0.2); box-shadow: 0 0 10px rgba(0,255,255,0.4); }
+    .lang-dropdown {
+      position: absolute; top: 100%; right: 0; margin-top: 0.5rem;
+      background: rgba(0, 15, 30, 0.98); backdrop-filter: blur(10px);
+      border: 1px solid rgba(0,255,255,0.3); border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5); overflow: hidden;
+      display: none; z-index: 110; min-width: 120px;
+    }
+    .lang-dropdown.show { display: block; }
+    .lang-option {
+      padding: 0.6rem 1rem; cursor: pointer; color: #8aa0c0; font-size: 0.9rem;
+      transition: background 0.2s; white-space: nowrap;
+    }
+    .lang-option:hover { background: rgba(0,255,255,0.15); color: var(--accent2); }
+    .lang-option.active { background: rgba(0,255,255,0.2); color: var(--accent2); }
+    main { flex: 1; padding: 2rem 1.5rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+    .section-title {
+      font-size: 1.6rem; font-weight: 600; margin-bottom: 1.5rem; display: flex; align-items: center;
+      gap: 0.8rem; color: var(--accent2); border-left: 4px solid var(--accent);
+      padding-left: 1rem; scroll-margin-top: 80px;
+      font-family: 'Orbitron', sans-serif; text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(0,255,255,0.4);
+    }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.5rem; }
+    .new-post-btn {
+      background: linear-gradient(135deg, #00b4d8, #0077b6); color: white; border: none;
+      padding: 0.6rem 1.5rem; border-radius: 20px; cursor: pointer; font-size: 0.85rem;
+      display: flex; align-items: center; gap: 0.3rem; transition: var(--transition);
+      font-family: 'Orbitron', sans-serif; box-shadow: 0 0 12px rgba(0,180,216,0.4);
+    }
+    .new-post-btn:hover { box-shadow: 0 0 20px rgba(0,255,255,0.7); transform: scale(1.02); }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem; }
+    .card {
+      background: var(--card-bg); border-radius: var(--radius);
+      border: 1px solid rgba(0,255,255,0.15);
+      box-shadow: var(--shadow); overflow: hidden; transition: var(--transition);
+      display: flex; flex-direction: column; cursor: pointer; text-decoration: none; color: inherit;
+      backdrop-filter: blur(5px);
+    }
+    .card:hover {
+      transform: translateY(-5px); box-shadow: 0 0 25px rgba(0,255,255,0.3);
+      border-color: rgba(0,255,255,0.5);
+    }
+    .card-image { width: 100%; height: 140px; object-fit: cover; background: #0a1030; position: relative; overflow: hidden; }
+    .card-image svg { width: 100%; height: 100%; display: block; }
+    .card-content { padding: 1rem; flex: 1; display: flex; flex-direction: column; }
+    .card-tag {
+      display: inline-block; background: rgba(0,255,255,0.15); color: var(--accent2);
+      font-size: 0.7rem; padding: 0.2rem 0.8rem; border-radius: 12px; margin-bottom: 0.5rem;
+      font-weight: 500; width: fit-content; border: 1px solid rgba(0,255,255,0.3);
+    }
+    .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.3rem; line-height: 1.4; color: #fff; }
+    .card-desc { font-size: 0.85rem; color: var(--text-light); margin-bottom: 0.5rem; }
+    .card-footer {
+      display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem;
+      color: var(--text-light); margin-top: auto; padding-top: 0.5rem; border-top: 1px solid rgba(0,255,255,0.1);
+    }
+    .video-play-icon {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      font-size: 3rem; color: rgba(0,255,255,0.9); text-shadow: 0 0 15px rgba(0,255,255,0.7);
+      pointer-events: none; z-index: 2;
+    }
+    .code-card {
+      background: rgba(0, 20, 40, 0.9); border: 1px dashed rgba(0,255,255,0.4);
+      display: flex; flex-direction: column; padding: 1.2rem; border-radius: var(--radius);
+      backdrop-filter: blur(5px);
+    }
+    .code-text {
+      font-family: 'Courier New', monospace; font-size: 1.2rem; font-weight: bold;
+      color: var(--accent2); background: rgba(0,255,255,0.1); padding: 0.5rem;
+      border-radius: 6px; text-align: center; margin: 0.5rem 0; letter-spacing: 1px;
+      border: 1px solid rgba(0,255,255,0.2);
+    }
+    .copy-btn {
+      background: rgba(0,255,255,0.15); color: var(--accent2); border: 1px solid rgba(0,255,255,0.3);
+      padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 0.3rem;
+      margin-top: 0.5rem; transition: var(--transition);
+    }
+    .copy-btn:hover { background: rgba(0,255,255,0.3); box-shadow: 0 0 12px rgba(0,255,255,0.5); }
+    .copy-btn.copied { background: rgba(0, 200, 100, 0.3); border-color: #0f8; color: #0f8; }
+    .expire-date { font-size: 0.75rem; color: #ff6b6b; margin-top: 0.3rem; }
+    .post-list { display: flex; flex-direction: column; gap: 0.8rem; }
+    .post-item {
+      background: var(--card-bg); padding: 0.8rem 1rem; border-radius: 8px;
+      border: 1px solid rgba(0,255,255,0.1);
+      box-shadow: var(--shadow); display: flex; align-items: center; gap: 0.8rem;
+      transition: var(--transition); cursor: pointer; backdrop-filter: blur(5px);
+    }
+    .post-item:hover { background: rgba(0, 30, 50, 0.8); border-color: rgba(0,255,255,0.4); }
+    .platform-badge {
+      font-size: 0.7rem; padding: 0.15rem 0.6rem; border-radius: 4px; white-space: nowrap;
+      color: white; font-weight: 500;
+    }
+    .platform-badge.baha { background: #FF8C00; }
+    .platform-badge.ptt { background: #00BFFF; }
+    .platform-badge.reddit { background: #FF4500; }
+    .platform-badge.nga { background: #4B6E8E; }
+    .post-meta { font-size: 0.75rem; color: var(--text-light); margin-left: auto; white-space: nowrap; }
+    .settings-panel {
+      background: var(--card-bg); border-radius: var(--radius); padding: 1.5rem;
+      box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 1rem;
+      margin-top: 1rem; border: 1px solid rgba(0,255,255,0.15);
+    }
+    .setting-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .font-size-slider { width: 100px; accent-color: var(--accent2); }
+    .toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #1a2a40; transition: .3s; border-radius: 24px; border: 1px solid rgba(0,255,255,0.2); }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: #c0c0c0; transition: .3s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--accent2); box-shadow: 0 0 10px var(--accent2); }
+    input:checked + .slider:before { transform: translateX(20px); background-color: white; }
+    .form-error { color: #ff6b6b; font-size: 0.8rem; margin-top: 0.3rem; display: none; text-shadow: 0 0 5px rgba(255,0,0,0.3); }
+    .form-error.show { display: block; }
+    .modal-overlay {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(4px);
+      z-index: 200; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-card {
+      background: rgba(10, 20, 40, 0.95); backdrop-filter: blur(10px);
+      border: 1px solid rgba(0,255,255,0.3); border-radius: var(--radius);
+      max-width: 450px; width: 100%; max-height: 85vh; overflow-y: auto;
+      box-shadow: 0 0 30px rgba(0,255,255,0.2); display: flex; flex-direction: column;
+    }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 1.5rem; border-bottom: 1px solid rgba(0,255,255,0.2);
+    }
+    .modal-header h2 { font-size: 1.2rem; color: var(--accent2); font-family: 'Orbitron', sans-serif; }
+    .close-btn { background: none; border: none; font-size: 1.8rem; cursor: pointer; color: var(--text-light); }
+    .modal-body { padding: 1.5rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.3rem; font-weight: 500; color: var(--accent2); }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 0.6rem; border: 1px solid rgba(0,255,255,0.2);
+      border-radius: 6px; font-size: 0.9rem; background: rgba(0,10,20,0.6); color: #e0e0ff;
+      font-family: inherit;
+    }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .btn-primary {
+      background: linear-gradient(135deg, #00b4d8, #0077b6); color: white; border: none;
+      padding: 0.6rem 1.5rem; border-radius: 20px; cursor: pointer; font-size: 0.9rem;
+      transition: var(--transition); font-family: 'Orbitron', sans-serif;
+      box-shadow: 0 0 12px rgba(0,180,216,0.4);
+    }
+    .btn-primary:hover { box-shadow: 0 0 20px rgba(0,255,255,0.7); }
+    .btn-secondary {
+      background: rgba(255,255,255,0.1); color: var(--text); border: 1px solid rgba(255,255,255,0.2);
+      padding: 0.6rem 1.5rem; border-radius: 20px; cursor: pointer; font-size: 0.9rem;
+      transition: var(--transition);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.2); }
+    .tab-nav { display: flex; border-bottom: 1px solid rgba(0,255,255,0.2); margin-bottom: 1rem; }
+    .tab-btn {
+      flex: 1; text-align: center; padding: 0.8rem; cursor: pointer; font-weight: 500;
+      border-bottom: 2px solid transparent; transition: var(--transition);
+      color: var(--text-light); font-family: 'Orbitron', sans-serif;
+    }
+    .tab-btn.active { border-bottom-color: var(--accent2); color: var(--accent2); text-shadow: 0 0 8px var(--accent2); }
+    .reply-section { margin-top: 1.5rem; border-top: 1px solid rgba(0,255,255,0.2); padding-top: 1rem; }
+    .reply-item {
+      background: rgba(0,255,255,0.05); padding: 0.6rem 0.8rem; border-radius: 6px;
+      margin-bottom: 0.5rem; border: 1px solid rgba(0,255,255,0.1);
+    }
+    .reply-author { font-weight: 600; font-size: 0.85rem; color: var(--accent2); }
+    .reply-content { font-size: 0.85rem; margin: 0.3rem 0; color: #c0d0ff; }
+    .reply-time { font-size: 0.7rem; color: var(--text-light); }
+    .reply-input-area { display: flex; gap: 0.5rem; margin-top: 0.8rem; }
+    .reply-input-area input { flex: 1; padding: 0.5rem; border: 1px solid rgba(0,255,255,0.2); border-radius: 6px; background: rgba(0,10,20,0.6); color: #fff; }
+    .reply-input-area button { white-space: nowrap; }
+    .detail-body svg { width: 100%; border-radius: 8px; margin-bottom: 1rem; }
+    .detail-images { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+    .detail-images img { max-width: 100%; max-height: 200px; border-radius: 6px; border: 1px solid rgba(0,255,255,0.2); }
+    .profile-header { display: flex; flex-direction: column; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+    .avatar-container {
+      width: 100px; height: 100px; border-radius: 50%; overflow: hidden;
+      background: rgba(0,255,255,0.1); position: relative; cursor: pointer;
+      border: 2px solid var(--accent2); display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 15px rgba(0,255,255,0.3);
+    }
+    .avatar-container img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-placeholder { font-size: 3rem; color: var(--accent2); }
+    .avatar-upload-hint {
+      position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7);
+      color: white; font-size: 0.7rem; text-align: center; padding: 0.2rem;
+      opacity: 0; transition: var(--transition);
+    }
+    .avatar-container:hover .avatar-upload-hint { opacity: 1; }
+    .nickname-row { display: flex; align-items: center; gap: 0.5rem; }
+    .nickname-row input { width: 160px; padding: 0.3rem 0.5rem; border: 1px solid rgba(0,255,255,0.2); border-radius: 6px; background: rgba(0,10,20,0.6); color: #fff; }
+    .profile-bio { width: 100%; }
+    .profile-bio textarea { width: 100%; min-height: 80px; background: rgba(0,10,20,0.6); color: #fff; border: 1px solid rgba(0,255,255,0.2); border-radius: 6px; }
+    .ranking-list { display: flex; flex-direction: column; gap: 0.6rem; }
+    .ranking-item {
+      background: var(--card-bg); border-radius: 8px; padding: 0.8rem 1rem;
+      border: 1px solid rgba(0,255,255,0.1); box-shadow: var(--shadow);
+      display: flex; align-items: center; gap: 1rem; transition: var(--transition);
+      backdrop-filter: blur(5px);
+    }
+    .rank-badge { font-weight: 700; font-size: 1.1rem; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #1e2a40; color: var(--text-light); }
+    .rank-badge.gold { background: #FFD700; color: #000; box-shadow: 0 0 10px #FFD700; }
+    .rank-badge.silver { background: #C0C0C0; color: #000; box-shadow: 0 0 8px #C0C0C0; }
+    .rank-badge.bronze { background: #CD7F32; color: #fff; box-shadow: 0 0 6px #CD7F32; }
+    .hero-info { flex: 1; }
+    .hero-name { font-weight: 600; margin-bottom: 0.2rem; }
+    .hero-heat { font-size: 0.8rem; color: var(--text-light); }
+    .heat-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); margin-top: 0.3rem; overflow: hidden; }
+    .heat-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #00f2fe, #4facfe); transition: width 0.4s; box-shadow: 0 0 8px #00f2fe; }
+    .like-btn { background: none; border: none; color: var(--accent2); cursor: pointer; font-size: 1.4rem; display: flex; align-items: center; gap: 0.2rem; transition: var(--transition); }
+    .like-btn:hover { color: #ff0; text-shadow: 0 0 10px #ff0; transform: scale(1.2); }
+    .image-upload-area {
+      border: 2px dashed rgba(0,255,255,0.3); border-radius: 8px; padding: 1rem;
+      text-align: center; cursor: pointer; transition: var(--transition);
+      color: var(--text-light); background: rgba(0,255,255,0.03);
+    }
+    .image-upload-area:hover { border-color: var(--accent2); background: rgba(0,255,255,0.08); }
+    .image-preview-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+    .image-preview-item {
+      width: 80px; height: 80px; border-radius: 6px; overflow: hidden;
+      position: relative; border: 1px solid rgba(0,255,255,0.2);
+    }
+    .image-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+    .image-preview-item .remove-btn {
+      position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,0.7); color: white;
+      border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer;
+      font-size: 0.7rem; display: flex; align-items: center; justify-content: center;
+    }
+    footer {
+      background: rgba(0, 5, 15, 0.95); color: #6c7a8a; text-align: center; padding: 1.5rem;
+      font-size: 0.8rem; margin-top: auto; border-top: 1px solid rgba(0,255,255,0.2);
+    }
+    footer a { color: var(--accent2); text-decoration: none; }
+    @media (max-width: 1024px) { nav { gap: 1rem; } nav a { font-size: 0.8rem; } .card-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); } .modal-card { max-width: 90%; } }
+    @media (max-width: 768px) {
+      header { flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+      nav { width: 100%; justify-content: space-around; gap: 0.5rem; }
+      nav a { font-size: 0.75rem; padding: 0.2rem 0; }
+      .header-actions { width: 100%; justify-content: space-between; }
+      .card-grid { grid-template-columns: 1fr; }
+      .post-item { flex-wrap: wrap; }
+      .post-meta { margin-left: 0; width: 100%; text-align: right; }
+      .section-header { flex-direction: column; align-items: flex-start; }
+      .ranking-item { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo"><i class="material-icons">whatshot</i> <span data-i18n="logo">BD2 脉动</span></div>
+    <nav>
+      <a href="#official" class="active"><i class="material-icons">campaign</i> <span data-i18n="nav.news">官方资讯</span></a>
+      <a href="#community"><i class="material-icons">forum</i> <span data-i18n="nav.community">社区</span></a>
+      <a href="#fanart"><i class="material-icons">brush</i> <span data-i18n="nav.fanart">同人</span></a>
+      <a href="#ranking"><i class="material-icons">local_fire_department</i> <span data-i18n="nav.ranking">排行榜</span></a>
+      <a href="#videos"><i class="material-icons">play_circle</i> <span data-i18n="nav.videos">视频</span></a>
+      <a href="#codes"><i class="material-icons">confirmation_number</i> <span data-i18n="nav.codes">兑换码</span></a>
+    </nav>
+    <div class="header-actions">
+      <div class="user-area">
+        <button class="user-btn" id="loginRegisterBtn" onclick="openAuthModal()"><i class="material-icons">person</i> <span data-i18n="user.login">登录/注册</span></button>
+        <button class="user-name-btn" id="currentUsernameBtn" onclick="openProfileModal()" style="display:none;"><i class="material-icons">person</i> <span id="currentUsernameText"></span></button>
+        <button class="logout-btn" id="logoutBtn" onclick="logout()"><i class="material-icons">logout</i> <span data-i18n="user.logout">登出</span></button>
+      </div>
+      <div class="lang-select" id="langToggle">
+        <i class="material-icons">language</i> <span id="currentLangLabel">繁中</span> <i class="material-icons">arrow_drop_down</i>
+        <div class="lang-dropdown" id="langDropdown">
+          <div class="lang-option" data-lang="zh-Hant">繁體中文</div>
+          <div class="lang-option" data-lang="zh-Hans">简体中文</div>
+          <div class="lang-option" data-lang="en">English</div>
+          <div class="lang-option" data-lang="ja">日本語</div>
+          <div class="lang-option" data-lang="ko">한국어</div>
+        </div>
+      </div>
+      <button class="settings-btn" onclick="document.getElementById('settingsSection').scrollIntoView({behavior:'smooth'})"><i class="material-icons">settings</i></button>
+    </div>
+  </header>
+
+  <main>
+    <section id="official">
+      <div class="section-title"><i class="material-icons">campaign</i> <span data-i18n="section.news">最新官方公告</span></div>
+      <div class="card-grid">
+        <div class="card" onclick="showDetail('news', 1)">
+          <div class="card-image"><svg viewBox="0 0 400 140"><defs><linearGradient id="gn1"><stop offset="0%" stop-color="#1a0a2e"/><stop offset="100%" stop-color="#c9a87c"/></linearGradient></defs><rect width="400" height="140" fill="url(#gn1)"/><polygon points="200,20 215,50 248,55 222,78 230,110 200,95 170,110 178,78 152,55 185,50" fill="#f5d742" opacity="0.7"/><text x="200" y="125" text-anchor="middle" fill="white" font-size="14">NEW!</text></svg></div>
+          <div class="card-content"><span class="card-tag" data-i18n="news.1.tag">更新</span><div class="card-title" data-i18n="news.1.title">新角色「艾莉絲」登場 & 活動開跑</div><div class="card-desc" data-i18n="news.1.desc">全新限定角色即將加入。</div><div class="card-footer"><span data-i18n="news.1.date">2026-06-01</span><i class="material-icons" style="font-size:16px;">open_in_new</i></div></div>
+        </div>
+        <div class="card" onclick="showDetail('news', 2)">
+          <div class="card-image"><svg viewBox="0 0 400 140"><defs><linearGradient id="gn2"><stop offset="0%" stop-color="#3e2723"/><stop offset="100%" stop-color="#5C3A1B"/></linearGradient></defs><rect width="400" height="140" fill="url(#gn2)"/><rect x="160" y="30" width="80" height="65" rx="10" fill="#6d4c41" stroke="#8d6e63" stroke-width="2"/><circle cx="200" cy="100" r="18" fill="none" stroke="#ff7043" stroke-width="3"/></svg></div>
+          <div class="card-content"><span class="card-tag" data-i18n="news.2.tag">系統</span><div class="card-title" data-i18n="news.2.title">6/5 例行維護公告</div><div class="card-desc" data-i18n="news.2.desc">預計維護時間 09:00-12:00。</div><div class="card-footer"><span data-i18n="news.2.date">2026-06-02</span><i class="material-icons" style="font-size:16px;">open_in_new</i></div></div>
+        </div>
+        <div class="card" onclick="showDetail('news', 3)">
+          <div class="card-image"><svg viewBox="0 0 400 140"><defs><linearGradient id="gn3"><stop offset="0%" stop-color="#2e5a1e"/><stop offset="100%" stop-color="#4a8c34"/></linearGradient></defs><rect width="400" height="140" fill="url(#gn3)"/><polygon points="200,15 240,55 210,105 190,105 160,55" fill="#2d5016" opacity="0.7"/></svg></div>
+          <div class="card-content"><span class="card-tag" data-i18n="news.3.tag">活動</span><div class="card-title" data-i18n="news.3.title">端午節特別登入禮</div><div class="card-desc" data-i18n="news.3.desc">連續登入7天可獲得五星券。</div><div class="card-footer"><span data-i18n="news.3.date">2026-05-30</span><i class="material-icons" style="font-size:16px;">open_in_new</i></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="community">
+      <div class="section-header">
+        <div class="section-title"><i class="material-icons">forum</i> <span data-i18n="section.community">熱門社群討論</span></div>
+        <button class="new-post-btn" onclick="openNewPostModal()"><i class="material-icons">add</i> <span data-i18n="post.new">發帖</span></button>
+      </div>
+      <div class="post-list" id="postListContainer"></div>
+    </section>
+
+    <section id="fanart" style="margin-top:2rem;">
+      <div class="section-title"><i class="material-icons">brush</i> <span data-i18n="section.fanart">Pixiv 同人插畫</span></div>
+      <div class="card-grid">
+        <div class="card" onclick="showDetail('art', 1)"><div class="card-image"><svg viewBox="0 0 300 140"><rect width="300" height="140" fill="#87CEEB"/><polygon points="34,20 55,50 13,50" fill="#2E8B57"/></svg></div><div class="card-content"><div class="card-title" data-i18n="art.1.title">夏日の冒険</div><div class="card-desc" data-i18n="art.1.author">作者: Yuki_111</div><div class="card-footer">❤️ 1.2k</div></div></div>
+        <div class="card" onclick="showDetail('art', 2)" data-adult="true"><div class="card-image"><svg viewBox="0 0 300 140"><rect width="300" height="140" fill="#0d1b2a"/><circle cx="230" cy="35" r="30" fill="#E8D5B7"/></svg></div><div class="card-content"><div class="card-title" data-i18n="art.2.title">エリスと月夜</div><div class="card-desc" data-i18n="art.2.author">作者: Ryo_星</div><div class="card-footer">❤️ 987</div></div></div>
+        <div class="card" onclick="showDetail('art', 3)"><div class="card-image"><svg viewBox="0 0 300 140"><rect width="300" height="140" fill="#2c1810"/><ellipse cx="150" cy="85" rx="12" ry="18" fill="#FF6B35"/></svg></div><div class="card-content"><div class="card-title" data-i18n="art.3.title">冒険者の休息</div><div class="card-desc" data-i18n="art.3.author">作者: mi_art</div><div class="card-footer">❤️ 756</div></div></div>
+      </div>
+    </section>
+
+    <section id="ranking" style="margin-top:2rem;">
+      <div class="section-title"><i class="material-icons">local_fire_department</i> <span data-i18n="section.ranking">英雄熱度排行榜</span></div>
+      <div class="ranking-list" id="rankingListContainer"></div>
+    </section>
+
+    <section id="videos" style="margin-top:2rem;">
+      <div class="section-title"><i class="material-icons">play_circle</i> <span data-i18n="section.videos">相關影片</span></div>
+      <div class="card-grid" id="videoListContainer"></div>
+    </section>
+
+    <section id="codes" style="margin-top:2rem;">
+      <div class="section-title"><i class="material-icons">confirmation_number</i> <span data-i18n="section.codes">可用兌換碼</span></div>
+      <div class="card-grid">
+        <div class="code-card"><span class="card-tag" data-i18n="code.1.tag">最新</span><div class="card-title" data-i18n="code.1.name">端午節禮包</div><div class="code-text" id="code1">BROWN2026DRAGON</div><button class="copy-btn" onclick="copyCode('code1', this)"><i class="material-icons">content_copy</i> <span data-i18n="code.copy">複製代碼</span></button><div class="expire-date" data-i18n="code.1.expire">有效期至 2026-06-15</div></div>
+        <div class="code-card"><span class="card-tag" data-i18n="code.2.tag">常駐</span><div class="card-title" data-i18n="code.2.name">新手福利</div><div class="code-text" id="code2">BD2WELCOME</div><button class="copy-btn" onclick="copyCode('code2', this)"><i class="material-icons">content_copy</i> <span data-i18n="code.copy">複製代碼</span></button><div class="expire-date" data-i18n="code.2.expire">無期限</div></div>
+        <div class="code-card"><span class="card-tag" data-i18n="code.3.tag">限定</span><div class="card-title" data-i18n="code.3.name">直播掉落</div><div class="code-text" id="code3">LIVEGIFT555</div><button class="copy-btn" onclick="copyCode('code3', this)"><i class="material-icons">content_copy</i> <span data-i18n="code.copy">複製代碼</span></button><div class="expire-date" data-i18n="code.3.expire">有效期至 2026-06-10</div></div>
+      </div>
+    </section>
+
+    <section id="settingsSection" style="margin-top:2rem;">
+      <div class="section-title"><i class="material-icons">settings</i> <span data-i18n="section.settings">個性化設置</span></div>
+      <div class="settings-panel">
+        <div class="setting-row"><span data-i18n="settings.fontSize">字體大小</span><input type="range" class="font-size-slider" id="fontSizeSlider" min="12" max="20" value="16"></div>
+        <div class="setting-row"><span data-i18n="settings.adultFilter">篩選成人內容</span><label class="toggle-switch"><input type="checkbox" id="adultFilterCheckbox" checked><span class="slider"></span></label></div>
+        <div class="setting-row"><span data-i18n="settings.pushNotification">推送通知</span><label class="toggle-switch"><input type="checkbox" id="pushNotificationCheckbox"><span class="slider"></span></label></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 弹窗 -->
+  <div class="modal-overlay" id="detailOverlay" onclick="if(event.target===this) closeDetail();"><div class="modal-card" style="max-width:600px;"><div class="modal-header"><h2 id="detailTitle"></h2><button class="close-btn" onclick="closeDetail()">&times;</button></div><div class="modal-body" id="detailBody"></div></div></div>
+  <div class="modal-overlay" id="authModal"><div class="modal-card" style="max-width:400px;"><div class="modal-header"><h2>登录 / 注册</h2><button class="close-btn" onclick="closeAuthModal()">&times;</button></div><div class="tab-nav"><div class="tab-btn active" id="tabLogin" onclick="switchAuthTab('login')">登录</div><div class="tab-btn" id="tabRegister" onclick="switchAuthTab('register')">注册</div></div><div class="modal-body"><div id="loginForm"><div class="form-group"><label>用户名</label><input type="text" id="loginUsername"><div class="form-error" id="loginUsernameError"></div></div><div class="form-group"><label>密码</label><input type="password" id="loginPassword"><div class="form-error" id="loginPasswordError"></div></div><button class="btn-primary" onclick="login()" style="width:100%;">登录</button><div class="form-error" id="loginGeneralError" style="margin-top:0.5rem;"></div></div><div id="registerForm" style="display:none;"><div class="form-group"><label>用户名</label><input type="text" id="regUsername"><div class="form-error" id="regUsernameError"></div></div><div class="form-group"><label>密码</label><input type="password" id="regPassword"><div class="form-error" id="regPasswordError"></div></div><div class="form-group"><label>确认密码</label><input type="password" id="regConfirmPassword"><div class="form-error" id="regConfirmError"></div></div><button class="btn-primary" onclick="register()" style="width:100%;">注册</button><div class="form-error" id="regGeneralError" style="margin-top:0.5rem;"></div></div></div></div></div>
+  <div class="modal-overlay" id="profileModal"><div class="modal-card" style="max-width:400px;"><div class="modal-header"><h2>个人主页</h2><button class="close-btn" onclick="closeProfileModal()">&times;</button></div><div class="modal-body"><div class="profile-header"><div class="avatar-container" id="avatarContainer" onclick="document.getElementById('avatarInput').click()"><img id="avatarImg" src="" alt="头像" style="display:none;"><i class="material-icons avatar-placeholder" id="avatarPlaceholder">person</i><div class="avatar-upload-hint">点击上传</div><input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)"></div><div class="nickname-row"><span>昵称：</span><input type="text" id="profileNickname" maxlength="20"><button class="btn-primary" onclick="saveProfile()" style="padding:0.3rem 0.8rem; font-size:0.8rem;">保存</button></div></div><div class="profile-bio"><label>个人简介</label><textarea id="profileBio" maxlength="200"></textarea></div><div id="profileMsg" style="color:#0f8; margin-top:0.5rem; font-size:0.85rem;"></div></div></div></div>
+  <div class="modal-overlay" id="newPostModal"><div class="modal-card"><div class="modal-header"><h2>发布新帖</h2><button class="close-btn" onclick="closeNewPostModal()">&times;</button></div><div class="modal-body"><div class="form-group"><label>平台</label><select id="newPostPlatform"><option value="">请选择平台</option><option value="baha">巴哈姆特</option><option value="ptt">PTT</option><option value="reddit">Reddit</option><option value="nga">NGA</option></select><div class="form-error" id="newPostPlatformError"></div></div><div class="form-group"><label>标题</label><input type="text" id="newPostTitle"><div class="form-error" id="newPostTitleError"></div></div><div class="form-group"><label>内容</label><textarea id="newPostContent" rows="4"></textarea><div class="form-error" id="newPostContentError"></div></div><div class="form-group"><label>添加图片 <span style="font-size:0.8rem; color:var(--text-light);">(最多4张，单张≤5MB)</span></label><div class="image-upload-area" onclick="document.getElementById('imageInput').click()"><i class="material-icons" style="font-size:2rem;">add_photo_alternate</i><p>点击上传图片</p><input type="file" id="imageInput" accept="image/*" multiple hidden onchange="handleImageUpload(event)"></div><div class="image-preview-list" id="imagePreviewList"></div></div><button class="btn-primary" onclick="submitNewPost()" style="width:100%;">发布</button></div></div></div>
+
+  <footer>
+    <p data-i18n="footer.disclaimer">非官方玩家站点，与游戏开发商无关联。</p>
+    <p>© 2026 BD2 脉动 | 科幻主题</p>
+  </footer>
+
+  <script>
+    (function() {
+      // 工具函数
+      function safeGet(key, fallback = null) { try { return localStorage.getItem(key) || fallback; } catch(e) { return fallback; } }
+      function safeSet(key, value) { try { localStorage.setItem(key, value); return true; } catch(e) { return false; } }
+      function safeGetJSON(key, fallback = []) { try { const val = localStorage.getItem(key); return val ? JSON.parse(val) : fallback; } catch(e) { return fallback; } }
+
+      // 完整语言包
+      const i18n = {
+        'zh-Hant': {
+          logo: 'BD2 脉动', 'nav.news':'官方资讯','nav.community':'社区','nav.fanart':'同人','nav.ranking':'排行榜','nav.videos':'视频','nav.codes':'兑换码',
+          'section.news':'最新官方公告','section.community':'熱門社群討論','section.fanart':'Pixiv 同人插畫','section.ranking':'英雄熱度排行榜','section.videos':'相關影片','section.codes':'可用兌換碼','section.settings':'個性化設置',
+          'news.1.tag':'更新','news.1.title':'新角色「艾莉絲」登場 & 活動開跑','news.1.desc':'全新限定角色即將加入。','news.1.date':'2026-06-01',
+          'news.2.tag':'系統','news.2.title':'6/5 例行維護公告','news.2.desc':'預計維護時間 09:00-12:00。','news.2.date':'2026-06-02',
+          'news.3.tag':'活動','news.3.title':'端午節特別登入禮','news.3.desc':'連續登入7天可獲得五星券。','news.3.date':'2026-05-30',
+          'code.copy':'複製代碼','code.copied':'已複製','code.1.tag':'最新','code.1.name':'端午節禮包','code.1.expire':'有效期至 2026-06-15',
+          'code.2.tag':'常駐','code.2.name':'新手福利','code.2.expire':'無期限','code.3.tag':'限定','code.3.name':'直播掉落','code.3.expire':'有效期至 2026-06-10',
+          'settings.fontSize':'字體大小','settings.adultFilter':'篩選成人內容','settings.pushNotification':'推送通知',
+          'footer.disclaimer':'非官方玩家站点，与游戏开发商无关联。',
+          'user.login':'登录/注册','user.logout':'登出',
+          'post.new':'發帖','post.reply':'回复','post.replyPlaceholder':'输入回复...','post.noPosts':'暂无帖子',
+          'art.1.title':'夏日の冒険','art.1.author':'作者: Yuki_111',
+          'art.2.title':'エリスと月夜','art.2.author':'作者: Ryo_星',
+          'art.3.title':'冒険者の休息','art.3.author':'作者: mi_art',
+          'video.1.title': '【棕色塵埃2】新手必看！開局攻略', 'video.1.author': 'UP主: 遊戲達人', 'video.1.views': '播放 5.2萬',
+          'video.2.title': '【BD2】艾莉絲實戰演示', 'video.2.author': 'UP主: 風鈴', 'video.2.views': '播放 3.8萬',
+          'video.3.title': '棕色塵埃2 OST 精選', 'video.3.author': 'UP主: 音樂盒子', 'video.3.views': '播放 1.1萬',
+          'hero.1':'艾莉絲','hero.2':'露娜','hero.3':'雷恩','hero.4':'希爾達','hero.5':'凱恩','hero.6':'艾瑪','hero.7':'奧利弗','hero.8':'索菲亞'
+        },
+        'zh-Hans': {
+          logo: 'BD2 脉动', 'nav.news':'官方资讯','nav.community':'社区','nav.fanart':'同人','nav.ranking':'排行榜','nav.videos':'视频','nav.codes':'兑换码',
+          'section.news':'最新官方公告','section.community':'热门社群讨论','section.fanart':'Pixiv 同人插画','section.ranking':'英雄热度排行榜','section.videos':'相关视频','section.codes':'可用兑换码','section.settings':'个性化设置',
+          'news.1.tag':'更新','news.1.title':'新角色「艾莉丝」登场','news.1.desc':'全新限定角色即将加入。','news.1.date':'2026-06-01',
+          'news.2.tag':'系统','news.2.title':'6/5 例行维护公告','news.2.desc':'维护时间 09:00-12:00。','news.2.date':'2026-06-02',
+          'news.3.tag':'活动','news.3.title':'端午节特别登入礼','news.3.desc':'连续登入7天可获得五星券。','news.3.date':'2026-05-30',
+          'code.copy':'复制代码','code.copied':'已复制','code.1.tag':'最新','code.1.name':'端午节礼包','code.1.expire':'有效期至 2026-06-15',
+          'code.2.tag':'常驻','code.2.name':'新手福利','code.2.expire':'无期限','code.3.tag':'限定','code.3.name':'直播掉落','code.3.expire':'有效期至 2026-06-10',
+          'settings.fontSize':'字体大小','settings.adultFilter':'过滤成人内容','settings.pushNotification':'推送通知',
+          'footer.disclaimer':'非官方玩家站点，与游戏开发商无关联。',
+          'user.login':'登录/注册','user.logout':'登出',
+          'post.new':'发帖','post.reply':'回复','post.replyPlaceholder':'输入回复...','post.noPosts':'暂无帖子',
+          'art.1.title':'夏日の冒険','art.1.author':'作者: Yuki_111',
+          'art.2.title':'エリスと月夜','art.2.author':'作者: Ryo_星',
+          'art.3.title':'冒険者の休息','art.3.author':'作者: mi_art',
+          'video.1.title': '【棕色尘埃2】新手必看！开局攻略', 'video.1.author': 'UP主: 游戏达人', 'video.1.views': '播放 5.2万',
+          'video.2.title': '【BD2】艾莉丝实战演示', 'video.2.author': 'UP主: 风铃', 'video.2.views': '播放 3.8万',
+          'video.3.title': '棕色尘埃2 OST 精选', 'video.3.author': 'UP主: 音乐盒子', 'video.3.views': '播放 1.1万',
+          'hero.1':'艾莉丝','hero.2':'露娜','hero.3':'雷恩','hero.4':'希尔达','hero.5':'凯恩','hero.6':'艾玛','hero.7':'奥利弗','hero.8':'索菲亚'
+        },
+        'en': {
+          logo: 'BD2 Pulse', 'nav.news':'News','nav.community':'Community','nav.fanart':'Fan Art','nav.ranking':'Ranking','nav.videos':'Videos','nav.codes':'Coupons',
+          'section.news':'Official Announcements','section.community':'Hot Discussions','section.fanart':'Pixiv Fan Art','section.ranking':'Hero Heat Ranking','section.videos':'Bilibili Videos','section.codes':'Available Coupons','section.settings':'Settings',
+          'news.1.tag':'Update','news.1.title':'New Character "Alice"','news.1.desc':'A new limited character arrives.','news.1.date':'2026-06-01',
+          'news.2.tag':'System','news.2.title':'6/5 Scheduled Maintenance','news.2.desc':'Maintenance 09:00-12:00.','news.2.date':'2026-06-02',
+          'news.3.tag':'Event','news.3.title':'Dragon Boat Festival Login Gift','news.3.desc':'Log in 7 days for rewards.','news.3.date':'2026-05-30',
+          'code.copy':'Copy Code','code.copied':'Copied!','code.1.tag':'New','code.1.name':'Dragon Boat Pack','code.1.expire':'Expires 2026-06-15',
+          'code.2.tag':'Permanent','code.2.name':'Newbie Gift','code.2.expire':'No Expiry','code.3.tag':'Limited','code.3.name':'Stream Drop','code.3.expire':'Expires 2026-06-10',
+          'settings.fontSize':'Font Size','settings.adultFilter':'Filter Adult Content','settings.pushNotification':'Push Notifications',
+          'footer.disclaimer':'Unofficial fan site.',
+          'user.login':'Login/Register','user.logout':'Logout',
+          'post.new':'New Post','post.reply':'Reply','post.replyPlaceholder':'Write a reply...','post.noPosts':'No posts yet',
+          'art.1.title':'Summer Adventure','art.1.author':'by Yuki_111',
+          'art.2.title':'Ellis & Moonlit Night','art.2.author':'by Ryo_Hoshi',
+          'art.3.title':"Adventurer's Rest",'art.3.author':'by mi_art',
+          'video.1.title': '【BD2】Beginner Guide', 'video.1.author': 'by GameMaster', 'video.1.views': '52K views',
+          'video.2.title': '【BD2】Alice Gameplay', 'video.2.author': 'by Windbell', 'video.2.views': '38K views',
+          'video.3.title': 'Brown Dust 2 OST Collection', 'video.3.author': 'by MusicBox', 'video.3.views': '11K views',
+          'hero.1':'Alice','hero.2':'Luna','hero.3':'Ryan','hero.4':'Hilda','hero.5':'Kane','hero.6':'Emma','hero.7':'Oliver','hero.8':'Sophia'
+        },
+        'ja': {
+          logo: 'BD2 パルス', 'nav.news':'公式情報','nav.community':'コミュニティ','nav.fanart':'同人','nav.ranking':'ランキング','nav.videos':'動画','nav.codes':'コード',
+          'section.news':'最新公式発表','section.community':'話題の投稿','section.fanart':'Pixiv 同人イラスト','section.ranking':'英雄人気ランキング','section.videos':'関連動画','section.codes':'利用可能コード','section.settings':'設定',
+          'news.1.tag':'更新','news.1.title':'新キャラ「アリス」登場','news.1.desc':'限定キャラ追加。','news.1.date':'2026-06-01',
+          'news.2.tag':'システム','news.2.title':'6/5 定期メンテナンス','news.2.desc':'9:00-12:00メンテ。','news.2.date':'2026-06-02',
+          'news.3.tag':'イベント','news.3.title':'端午節ログインボーナス','news.3.desc':'7日間ログインで報酬。','news.3.date':'2026-05-30',
+          'code.copy':'コピー','code.copied':'コピー済','code.1.tag':'新着','code.1.name':'端午パック','code.1.expire':'期限 2026-06-15',
+          'code.2.tag':'常設','code.2.name':'初心者特典','code.2.expire':'無期限','code.3.tag':'限定','code.3.name':'配信ドロップ','code.3.expire':'期限 2026-06-10',
+          'settings.fontSize':'文字サイズ','settings.adultFilter':'成人向け非表示','settings.pushNotification':'プッシュ通知',
+          'footer.disclaimer':'非公式ファンサイトです。',
+          'user.login':'ログイン/登録','user.logout':'ログアウト',
+          'post.new':'新規投稿','post.reply':'返信','post.replyPlaceholder':'返信を入力...','post.noPosts':'投稿なし',
+          'art.1.title':'夏の冒険','art.1.author':'作者: Yuki_111',
+          'art.2.title':'エリスと月夜','art.2.author':'作者: Ryo_星',
+          'art.3.title':'冒険者の休息','art.3.author':'作者: mi_art',
+          'video.1.title': '【BD2】初心者ガイド', 'video.1.author': '投稿者: GameMaster', 'video.1.views': '5.2万再生',
+          'video.2.title': '【BD2】アリス ゲームプレイ', 'video.2.author': '投稿者: Windbell', 'video.2.views': '3.8万再生',
+          'video.3.title': 'BD2 OST コレクション', 'video.3.author': '投稿者: MusicBox', 'video.3.views': '1.1万再生',
+          'hero.1':'アリス','hero.2':'ルナ','hero.3':'ライアン','hero.4':'ヒルダ','hero.5':'ケイン','hero.6':'エマ','hero.7':'オリバー','hero.8':'ソフィア'
+        },
+        'ko': {
+          logo: 'BD2 펄스', 'nav.news':'공지','nav.community':'커뮤니티','nav.fanart':'팬아트','nav.ranking':'랭킹','nav.videos':'영상','nav.codes':'쿠폰',
+          'section.news':'최신 공식 공지','section.community':'인기 토론','section.fanart':'Pixiv 팬아트','section.ranking':'영웅 인기 랭킹','section.videos':'관련 영상','section.codes':'사용 가능 쿠폰','section.settings':'설정',
+          'news.1.tag':'업데이트','news.1.title':'신규 캐릭터 「앨리스」 등장','news.1.desc':'한정 캐릭터 추가.','news.1.date':'2026-06-01',
+          'news.2.tag':'시스템','news.2.title':'6/5 정기 점검','news.2.desc':'09:00-12:00 점검.','news.2.date':'2026-06-02',
+          'news.3.tag':'이벤트','news.3.title':'단오절 로그인 선물','news.3.desc':'7일 연속 로그인 보상.','news.3.date':'2026-05-30',
+          'code.copy':'코드 복사','code.copied':'복사됨','code.1.tag':'신규','code.1.name':'단오 패키지','code.1.expire':'유효기간 2026-06-15',
+          'code.2.tag':'상시','code.2.name':'신규 선물','code.2.expire':'무기한','code.3.tag':'한정','code.3.name':'방송 드롭','code.3.expire':'유효기간 2026-06-10',
+          'settings.fontSize':'글자 크기','settings.adultFilter':'성인 콘텐츠 가리기','settings.pushNotification':'푸시 알림',
+          'footer.disclaimer':'비공식 팬 사이트입니다.',
+          'user.login':'로그인/회원가입','user.logout':'로그아웃',
+          'post.new':'새 글','post.reply':'답글','post.replyPlaceholder':'답글 입력...','post.noPosts':'게시물 없음',
+          'art.1.title':'여름 모험','art.1.author':'작가: Yuki_111',
+          'art.2.title':'엘리스와 달밤','art.2.author':'작가: Ryo_星',
+          'art.3.title':'모험가의 휴식','art.3.author':'작가: mi_art',
+          'video.1.title': '【BD2】초보자 가이드', 'video.1.author': 'UP: GameMaster', 'video.1.views': '5.2만회',
+          'video.2.title': '【BD2】앨리스 플레이', 'video.2.author': 'UP: Windbell', 'video.2.views': '3.8만회',
+          'video.3.title': '브라운더스트2 OST 모음', 'video.3.author': 'UP: MusicBox', 'video.3.views': '1.1만회',
+          'hero.1':'앨리스','hero.2':'루나','hero.3':'라이언','hero.4':'힐다','hero.5':'케인','hero.6':'엠마','hero.7':'올리버','hero.8':'소피아'
+        }
+      };
+
+      let currentLang = safeGet('bd2-lang', 'zh-Hant');
+      function t(key) { return i18n[currentLang]?.[key] || i18n['zh-Hant'][key] || key; }
+      function applyLanguage() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.getAttribute('data-i18n');
+          if (i18n[currentLang]?.[key]) el.textContent = i18n[currentLang][key];
+        });
+        document.getElementById('currentLangLabel').textContent = { 'zh-Hant':'繁中','zh-Hans':'简中','en':'English','ja':'日本語','ko':'한국어' }[currentLang] || currentLang;
+        document.querySelectorAll('.lang-option').forEach(opt => opt.classList.toggle('active', opt.dataset.lang === currentLang));
+        renderPostList(); renderVideos(); renderRanking();
+      }
+      function setLanguage(lang) { if (!i18n[lang]) return; currentLang = lang; safeSet('bd2-lang', lang); applyLanguage(); document.getElementById('langDropdown').classList.remove('show'); }
+
+      // 用户系统
+      function getUsers() { return safeGetJSON('bd2-users', []); }
+      function saveUsers(u) { safeSet('bd2-users', JSON.stringify(u)); }
+      function getUserProfile(username) { const profiles = safeGetJSON('bd2-profiles', {}); return profiles[username] || { nickname: username, bio: '', avatar: '' }; }
+      function saveUserProfile(username, profile) { const profiles = safeGetJSON('bd2-profiles', {}); profiles[username] = profile; safeSet('bd2-profiles', JSON.stringify(profiles)); }
+      function getCurrentUser() { return safeGet('bd2-currentUser', null); }
+      function setCurrentUser(user) { safeSet('bd2-currentUser', user); updateUserUI(); }
+      function clearCurrentUser() { safeSet('bd2-currentUser', ''); updateUserUI(); }
+      function updateUserUI() {
+        const user = getCurrentUser();
+        document.getElementById('loginRegisterBtn').style.display = user ? 'none' : 'flex';
+        document.getElementById('currentUsernameBtn').style.display = user ? 'flex' : 'none';
+        document.getElementById('logoutBtn').style.display = user ? 'flex' : 'none';
+        if (user) document.getElementById('currentUsernameText').textContent = getUserProfile(user).nickname || user;
+      }
+
+      window.openAuthModal = function() {
+        document.getElementById('authModal').classList.add('active'); switchAuthTab('login');
+        ['loginUsernameError','loginPasswordError','loginGeneralError','regUsernameError','regPasswordError','regConfirmError','regGeneralError'].forEach(id => { const el = document.getElementById(id); if(el) { el.textContent = ''; el.classList.remove('show'); } });
+        document.getElementById('loginUsername').value = ''; document.getElementById('loginPassword').value = ''; document.getElementById('regUsername').value = ''; document.getElementById('regPassword').value = ''; document.getElementById('regConfirmPassword').value = '';
+      };
+      window.closeAuthModal = function() { document.getElementById('authModal').classList.remove('active'); };
+      window.switchAuthTab = function(tab) {
+        document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+        document.getElementById('tabRegister').classList.toggle('active', tab==='register');
+        document.getElementById('loginForm').style.display = tab==='login' ? 'block' : 'none';
+        document.getElementById('registerForm').style.display = tab==='register' ? 'block' : 'none';
+      };
+      window.login = function() {
+        const u = document.getElementById('loginUsername').value.trim();
+        const p = document.getElementById('loginPassword').value;
+        let valid = true;
+        if (!u) { document.getElementById('loginUsernameError').textContent = '请输入用户名'; document.getElementById('loginUsernameError').classList.add('show'); valid = false; }
+        if (!p) { document.getElementById('loginPasswordError').textContent = '请输入密码'; document.getElementById('loginPasswordError').classList.add('show'); valid = false; }
+        if (!valid) return;
+        const users = getUsers();
+        if (users.find(x => x.username === u && x.password === p)) { setCurrentUser(u); closeAuthModal(); }
+        else { document.getElementById('loginGeneralError').textContent = '用户名或密码错误'; document.getElementById('loginGeneralError').classList.add('show'); }
+      };
+      window.register = function() {
+        const u = document.getElementById('regUsername').value.trim();
+        const p = document.getElementById('regPassword').value;
+        const pc = document.getElementById('regConfirmPassword').value;
+        let valid = true;
+        if (!/^[a-zA-Z0-9_]{3,20}$/.test(u)) { document.getElementById('regUsernameError').textContent = '用户名需为3-20位字母、数字或下划线'; document.getElementById('regUsernameError').classList.add('show'); valid = false; }
+        if (!p || p.length < 6 || p.length > 20) { document.getElementById('regPasswordError').textContent = '密码长度需在6-20位之间'; document.getElementById('regPasswordError').classList.add('show'); valid = false; }
+        if (p !== pc) { document.getElementById('regConfirmError').textContent = '两次密码输入不一致'; document.getElementById('regConfirmError').classList.add('show'); valid = false; }
+        if (!valid) return;
+        const users = getUsers();
+        if (users.find(x => x.username === u)) { document.getElementById('regGeneralError').textContent = '用户名已存在'; document.getElementById('regGeneralError').classList.add('show'); return; }
+        users.push({ username: u, password: p });
+        saveUsers(users);
+        saveUserProfile(u, { nickname: u, bio: '', avatar: '' });
+        setCurrentUser(u); closeAuthModal();
+      };
+      window.logout = function() { clearCurrentUser(); };
+
+      window.openProfileModal = function() {
+        const user = getCurrentUser(); if (!user) return;
+        const profile = getUserProfile(user);
+        document.getElementById('profileNickname').value = profile.nickname || user;
+        document.getElementById('profileBio').value = profile.bio || '';
+        if (profile.avatar) { document.getElementById('avatarImg').src = profile.avatar; document.getElementById('avatarImg').style.display = 'block'; document.getElementById('avatarPlaceholder').style.display = 'none'; }
+        else { document.getElementById('avatarImg').style.display = 'none'; document.getElementById('avatarPlaceholder').style.display = 'block'; }
+        document.getElementById('profileMsg').textContent = '';
+        document.getElementById('profileModal').classList.add('active');
+      };
+      window.closeProfileModal = function() { document.getElementById('profileModal').classList.remove('active'); };
+      window.handleAvatarUpload = function(event) {
+        const file = event.target.files[0]; if (!file) return;
+        if (!file.type.startsWith('image/')) { alert('请选择图片文件'); return; }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = new Image(); img.src = e.target.result;
+          img.onload = function() {
+            const canvas = document.createElement('canvas'); canvas.width = canvas.height = 200;
+            canvas.getContext('2d').drawImage(img, 0, 0, 200, 200);
+            const data = canvas.toDataURL('image/jpeg', 0.8);
+            document.getElementById('avatarImg').src = data; document.getElementById('avatarImg').style.display = 'block'; document.getElementById('avatarPlaceholder').style.display = 'none';
+            document.getElementById('avatarContainer').dataset.avatarData = data;
+          };
+        };
+        reader.readAsDataURL(file);
+      };
+      window.saveProfile = function() {
+        const user = getCurrentUser(); if (!user) return;
+        const nickname = document.getElementById('profileNickname').value.trim();
+        if (nickname.length < 2 || nickname.length > 20) { document.getElementById('profileMsg').textContent = '昵称长度需在2-20个字符之间'; return; }
+        const bio = document.getElementById('profileBio').value.trim();
+        const avatar = document.getElementById('avatarContainer').dataset.avatarData || getUserProfile(user).avatar;
+        saveUserProfile(user, { nickname, bio, avatar });
+        document.getElementById('profileMsg').textContent = '保存成功！';
+        updateUserUI();
+        setTimeout(() => { document.getElementById('profileMsg').textContent = ''; }, 2000);
+      };
+
+      // 帖子系统
+      function getPosts() { return safeGetJSON('bd2-posts', []); }
+      function savePosts(p) { safeSet('bd2-posts', JSON.stringify(p)); }
+      function initDefaultPosts() {
+        if (!safeGet('bd2-posts')) {
+          savePosts([
+            { id:1, platform:'baha', title:'【心得】新角色艾莉絲配隊思路分享', author:'剑士小P', timestamp:'2026-06-01 10:30', replies:[{author:'路人甲',content:'感谢分享！',time:'2026-06-01 11:00'}], images:[] },
+            { id:2, platform:'ptt', title:'[問題] 新手求健檢，主線卡關', author:'newbie99', timestamp:'2026-06-01 14:20', replies:[], images:[] },
+            { id:3, platform:'reddit', title:'Just cleared Chapter 10 with this team!', author:'BrownFan', timestamp:'2026-06-01 16:45', replies:[{author:'helper',content:'Try using Knight first',time:'2026-06-01 17:00'}], images:[] },
+            { id:4, platform:'nga', title:'[评测] 新版本PVP環境分析', author:'战术大师', timestamp:'2026-06-02 08:10', replies:[], images:[] }
+          ]);
+        }
+      }
+      function renderPostList() {
+        const container = document.getElementById('postListContainer'); if (!container) return;
+        const posts = getPosts(); container.innerHTML = '';
+        if (posts.length === 0) { container.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--text-light);">${t('post.noPosts')}</div>`; return; }
+        const platformNames = { baha:'巴哈', ptt:'PTT', reddit:'Reddit', nga:'NGA' };
+        posts.forEach(post => {
+          const div = document.createElement('div'); div.className = 'post-item';
+          div.onclick = () => showDetail('post', post.id);
+          div.innerHTML = `<span class="platform-badge ${post.platform}">${platformNames[post.platform]}</span><span class="post-title">${post.title}</span><span class="post-meta">${post.author} · ${post.replies ? post.replies.length : 0} ${t('post.reply')}</span>`;
+          container.appendChild(div);
+        });
+      }
+
+      let tempImages = [];
+      window.handleImageUpload = function(event) {
+        const files = Array.from(event.target.files);
+        if (tempImages.length + files.length > 4) { alert('最多上传4张图片'); return; }
+        files.forEach(file => {
+          if (!file.type.startsWith('image/')) { alert('请选择图片文件'); return; }
+          if (file.size > 5 * 1024 * 1024) { alert('单张图片不能超过5MB'); return; }
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const img = new Image(); img.src = e.target.result;
+            img.onload = function() {
+              let width = img.width, height = img.height, maxW = 800;
+              if (width > maxW) { height = Math.round((height * maxW) / width); width = maxW; }
+              const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+              canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+              tempImages.push(canvas.toDataURL('image/jpeg', 0.8));
+              renderImagePreviews();
+            };
+          };
+          reader.readAsDataURL(file);
+        });
+        event.target.value = '';
+      };
+      function renderImagePreviews() {
+        const container = document.getElementById('imagePreviewList');
+        container.innerHTML = '';
+        tempImages.forEach((data, i) => {
+          const div = document.createElement('div'); div.className = 'image-preview-item';
+          div.innerHTML = `<img src="${data}" alt="预览"><button class="remove-btn" onclick="removeTempImage(${i})">✕</button>`;
+          container.appendChild(div);
+        });
+      }
+      window.removeTempImage = function(index) { tempImages.splice(index, 1); renderImagePreviews(); };
+
+      window.openNewPostModal = function() {
+        if (!getCurrentUser()) { alert('请先登录'); openAuthModal(); return; }
+        document.getElementById('newPostModal').classList.add('active');
+        ['newPostPlatformError','newPostTitleError','newPostContentError'].forEach(id => { const el = document.getElementById(id); if(el) { el.textContent = ''; el.classList.remove('show'); } });
+        document.getElementById('newPostPlatform').value = ''; document.getElementById('newPostTitle').value = ''; document.getElementById('newPostContent').value = '';
+        tempImages = []; renderImagePreviews();
+      };
+      window.closeNewPostModal = function() { document.getElementById('newPostModal').classList.remove('active'); };
+      window.submitNewPost = function() {
+        const platform = document.getElementById('newPostPlatform').value;
+        const title = document.getElementById('newPostTitle').value.trim();
+        const content = document.getElementById('newPostContent').value.trim();
+        let valid = true;
+        if (!platform) { document.getElementById('newPostPlatformError').textContent = '请选择平台'; document.getElementById('newPostPlatformError').classList.add('show'); valid = false; }
+        if (title.length < 2 || title.length > 50) { document.getElementById('newPostTitleError').textContent = '标题长度需在2-50字符之间'; document.getElementById('newPostTitleError').classList.add('show'); valid = false; }
+        if (content.length < 2 || content.length > 500) { document.getElementById('newPostContentError').textContent = '内容长度需在2-500字符之间'; document.getElementById('newPostContentError').classList.add('show'); valid = false; }
+        if (!valid) return;
+        const posts = getPosts();
+        const newId = posts.length ? Math.max(...posts.map(p=>p.id)) + 1 : 1;
+        posts.unshift({ id:newId, platform, title, content, author: getCurrentUser(), timestamp: new Date().toLocaleString(), replies:[], images: tempImages.slice() });
+        savePosts(posts); renderPostList(); closeNewPostModal();
+      };
+
+      // 详情与评论
+      const newsDetails = {
+        1: { title: '新角色「艾莉絲」登場 & 活動開跑', meta: '2026-06-01 · 官方公告', body: '<svg viewBox="0 0 600 280"><defs><linearGradient id="nd1"><stop offset="0%" stop-color="#1a0a2e"/><stop offset="100%" stop-color="#c9a87c"/></linearGradient></defs><rect width="600" height="280" fill="url(#nd1)"/><circle cx="300" cy="120" r="60" fill="none" stroke="#D4A76A" stroke-width="2"/><polygon points="300,30 330,100 380,110 345,140 355,195 300,165 245,195 255,140 220,110 270,100" fill="#f5d742" opacity="0.6"/><text x="300" y="250" text-anchor="middle" fill="white" font-size="22">艾莉絲 登場</text></svg><p>全新限定角色「艾莉絲」正式加入卡池！</p>' },
+        2: { title: '6/5 例行維護公告', meta: '2026-06-02 · 系統維護', body: '<svg viewBox="0 0 600 280"><defs><linearGradient id="nd2"><stop offset="0%" stop-color="#3e2723"/><stop offset="100%" stop-color="#5C3A1B"/></linearGradient></defs><rect width="600" height="280" fill="url(#nd2)"/><rect x="220" y="60" width="160" height="130" rx="16" fill="#6d4c41" stroke="#8d6e63" stroke-width="3"/><circle cx="300" cy="205" r="22" fill="none" stroke="#ff7043" stroke-width="3.5"/><text x="300" y="255" text-anchor="middle" fill="#ccc" font-size="16">維護時間 09:00-12:00</text></svg><p>伺服器將於 2026年6月5日 09:00 - 12:00 進行例行維護。</p>' },
+        3: { title: '端午節特別登入禮', meta: '2026-05-30 · 活動', body: '<svg viewBox="0 0 600 280"><defs><linearGradient id="nd3"><stop offset="0%" stop-color="#2e5a1e"/><stop offset="100%" stop-color="#4a8c34"/></linearGradient></defs><rect width="600" height="280" fill="url(#nd3)"/><polygon points="300,30 380,110 360,200 240,200 220,110" fill="#2d5016" opacity="0.5"/><text x="300" y="145" text-anchor="middle" fill="#f5d742" font-size="50">★</text><text x="300" y="250" text-anchor="middle" fill="#e0e0e0" font-size="18">連續登入 7 天領取獎勵</text></svg><p>慶祝端午佳節，連續登入7天即可獲得豐厚獎勵！</p>' }
+      };
+      const artDetails = {
+        1: { title: '夏日の冒険', author: 'Yuki_111', meta: '❤️ 1.2k', body: '<svg viewBox="0 0 600 280"><rect width="600" height="280" fill="#87CEEB"/><polygon points="40,100 120,100 108,140 52,140" fill="#2E8B57"/><text x="300" y="260" fill="#5C3A1B" font-size="18">🌊 夏日の冒険</text></svg><p>在陽光燦爛的海灘上，角色們享受著難得的假期。</p>' },
+        2: { title: 'エリスと月夜', author: 'Ryo_星', meta: '❤️ 987', body: '<svg viewBox="0 0 600 280"><rect width="600" height="280" fill="#0d1b2a"/><circle cx="460" cy="65" r="55" fill="#E8D5B7" opacity="0.9"/><text x="300" y="268" fill="#aaa" font-size="16">🌙 エリスと月夜</text></svg><p>月光下的艾莉絲，長髮隨風飄逸。</p>' },
+        3: { title: '冒険者の休息', author: 'mi_art', meta: '❤️ 756', body: '<svg viewBox="0 0 600 280"><rect width="600" height="280" fill="#2c1810"/><ellipse cx="300" cy="175" rx="22" ry="32" fill="#FF6B35"/><text x="300" y="268" fill="#D4A76A" font-size="16">🍂 冒険者の休息</text></svg><p>歷經戰鬥的冒險者們在營火旁短暫休息。</p>' }
+      };
+      function getNewsComments() { return safeGetJSON('bd2-newsComments', {}); }
+      function saveNewsComments(c) { safeSet('bd2-newsComments', JSON.stringify(c)); }
+      function getArtComments() { return safeGetJSON('bd2-artComments', {}); }
+      function saveArtComments(c) { safeSet('bd2-artComments', JSON.stringify(c)); }
+
+      window.showDetail = function(type, id) {
+        try {
+          let title = '', meta = '', body = '';
+          if (type === 'post') {
+            const post = getPosts().find(p => p.id === id);
+            if (!post) throw new Error('帖子不存在');
+            title = post.title; meta = `${post.author} · ${post.timestamp}`;
+            body = `<p>${post.content || ''}</p>`;
+            if (post.images && post.images.length > 0) {
+              body += '<div class="detail-images">';
+              post.images.forEach(img => { body += `<img src="${img}" alt="图片">`; });
+              body += '</div>';
+            }
+            body += buildReplySection('post', id, post.replies || []);
+          } else if (type === 'news') {
+            const detail = newsDetails[id];
+            if (!detail) throw new Error('公告不存在');
+            title = detail.title; meta = detail.meta; body = detail.body;
+            body += buildReplySection('news', id, getNewsComments()[id] || []);
+          } else if (type === 'art') {
+            const detail = artDetails[id];
+            if (!detail) throw new Error('作品不存在');
+            title = detail.title; meta = detail.author + ' · ' + detail.meta; body = detail.body;
+            body += buildReplySection('art', id, getArtComments()[id] || []);
+          }
+          document.getElementById('detailTitle').textContent = title;
+          document.getElementById('detailBody').innerHTML = (meta ? '<div class="detail-meta">'+meta+'</div>' : '') + body;
+          document.getElementById('detailOverlay').classList.add('active');
+        } catch(e) { alert('内容加载失败：' + e.message); }
+      };
+      window.closeDetail = function() { document.getElementById('detailOverlay').classList.remove('active'); };
+
+      function buildReplySection(type, id, replies) {
+        let html = `<div class="reply-section"><h3>评论 (${replies.length})</h3>`;
+        replies.forEach(r => {
+          html += `<div class="reply-item"><div class="reply-author">${r.author}</div><div class="reply-content">${r.content}</div><div class="reply-time">${r.time}</div></div>`;
+        });
+        html += `<div class="reply-input-area"><input type="text" id="replyInput" placeholder="${t('post.replyPlaceholder')}"><button class="btn-primary" onclick="submitComment('${type}', ${id})">${t('post.reply')}</button></div></div>`;
+        return html;
+      }
+
+      window.submitComment = function(type, id) {
+        if (!getCurrentUser()) { alert('请先登录'); return; }
+        const input = document.getElementById('replyInput'); if (!input) return;
+        const content = input.value.trim(); if (!content) { alert('请输入评论内容'); return; }
+        if (type === 'post') {
+          const posts = getPosts(); const post = posts.find(p => p.id === id); if (!post) return;
+          post.replies.push({ author: getCurrentUser(), content, time: new Date().toLocaleString() });
+          savePosts(posts); renderPostList(); showDetail('post', id);
+        } else if (type === 'news') {
+          const c = getNewsComments(); if (!c[id]) c[id] = [];
+          c[id].push({ author: getCurrentUser(), content, time: new Date().toLocaleString() });
+          saveNewsComments(c); showDetail('news', id);
+        } else if (type === 'art') {
+          const c = getArtComments(); if (!c[id]) c[id] = [];
+          c[id].push({ author: getCurrentUser(), content, time: new Date().toLocaleString() });
+          saveArtComments(c); showDetail('art', id);
+        }
+      };
+
+      // 排行榜
+      const heroList = [
+        { id:1, key:'hero.1', defaultHeat:1520 }, { id:2, key:'hero.2', defaultHeat:980 }, { id:3, key:'hero.3', defaultHeat:760 },
+        { id:4, key:'hero.4', defaultHeat:540 }, { id:5, key:'hero.5', defaultHeat:320 }, { id:6, key:'hero.6', defaultHeat:210 },
+        { id:7, key:'hero.7', defaultHeat:150 }, { id:8, key:'hero.8', defaultHeat:80 }
+      ];
+      function getHeroHeat() { const stored = safeGetJSON('bd2-heroHeat', {}); const heat = {}; heroList.forEach(h => { heat[h.id] = stored[h.id] || h.defaultHeat; }); return heat; }
+      function saveHeroHeat(h) { safeSet('bd2-heroHeat', JSON.stringify(h)); }
+      function likeHero(heroId) { const heat = getHeroHeat(); heat[heroId] = (heat[heroId]||0)+1; saveHeroHeat(heat); renderRanking(); }
+      function renderRanking() {
+        const container = document.getElementById('rankingListContainer'); if (!container) return;
+        const heat = getHeroHeat();
+        const sorted = heroList.slice().sort((a,b) => (heat[b.id]||0) - (heat[a.id]||0));
+        const maxHeat = Math.max(...sorted.map(h => heat[h.id]||0), 1);
+        container.innerHTML = '';
+        sorted.forEach((hero, i) => {
+          const rank = i+1;
+          let badgeClass = '';
+          if (rank===1) badgeClass='gold'; else if (rank===2) badgeClass='silver'; else if (rank===3) badgeClass='bronze';
+          const heroName = t(hero.key), heroHeat = heat[hero.id]||0, percent = Math.round((heroHeat/maxHeat)*100);
+          const item = document.createElement('div'); item.className = 'ranking-item';
+          item.innerHTML = `<div class="rank-badge ${badgeClass}">${rank<=3?'':rank}</div><div class="hero-info"><div class="hero-name">${heroName}</div><div class="hero-heat">热度 ${heroHeat}</div><div class="heat-bar"><div class="heat-bar-fill" style="width:${percent}%"></div></div></div><button class="like-btn" onclick="event.stopPropagation(); likeHero(${hero.id})">👍</button>`;
+          container.appendChild(item);
+        });
+      }
+
+      // 视频
+      const videoData = [
+        { id:1, bvid:'BV1xx411c7mD', titleKey:'video.1.title', authorKey:'video.1.author', viewsKey:'video.1.views', bg:'#1a3a4a' },
+        { id:2, bvid:'BV1xx411c7mE', titleKey:'video.2.title', authorKey:'video.2.author', viewsKey:'video.2.views', bg:'#4a1a3a' },
+        { id:3, bvid:'BV1xx411c7mF', titleKey:'video.3.title', authorKey:'video.3.author', viewsKey:'video.3.views', bg:'#3a3a1a' }
+      ];
+      function renderVideos() {
+        const container = document.getElementById('videoListContainer'); if (!container) return;
+        container.innerHTML = '';
+        videoData.forEach(v => {
+          const card = document.createElement('a'); card.className = 'card'; card.href = `https://www.bilibili.com/video/${v.bvid}`; card.target = '_blank';
+          card.innerHTML = `<div class="card-image"><svg viewBox="0 0 300 140"><rect width="300" height="140" fill="${v.bg}"/><rect x="110" y="30" width="80" height="80" rx="12" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.3)" stroke-width="2"/><polygon points="140,50 140,90 175,70" fill="white"/></svg><span class="video-play-icon material-icons">play_circle_filled</span></div><div class="card-content"><div class="card-title">${t(v.titleKey)}</div><div class="card-desc">${t(v.authorKey)}</div><div class="card-footer"><span>${t(v.viewsKey)}</span><i class="material-icons">open_in_new</i></div></div>`;
+          container.appendChild(card);
+        });
+      }
+
+      // 初始化
+      initDefaultPosts(); updateUserUI(); applyLanguage(); renderPostList(); renderVideos(); renderRanking();
+      document.getElementById('fontSizeSlider').addEventListener('input', e => { document.documentElement.style.fontSize = e.target.value+'px'; safeSet('bd2-fontSize', e.target.value); });
+      const sf = safeGet('bd2-fontSize'); if (sf) { document.documentElement.style.fontSize = sf+'px'; document.getElementById('fontSizeSlider').value = sf; }
+      document.getElementById('adultFilterCheckbox').addEventListener('change', e => { document.body.classList.toggle('hide-adult', e.target.checked); safeSet('bd2-adultFilter', e.target.checked); });
+      if (safeGet('bd2-adultFilter') === 'false') { document.getElementById('adultFilterCheckbox').checked = false; document.body.classList.remove('hide-adult'); }
+      document.getElementById('pushNotificationCheckbox').addEventListener('change', e => safeSet('bd2-push', e.target.checked));
+      if (safeGet('bd2-push') === 'true') document.getElementById('pushNotificationCheckbox').checked = true;
+
+      document.getElementById('langToggle').addEventListener('click', e => { e.stopPropagation(); document.getElementById('langDropdown').classList.toggle('show'); });
+      document.addEventListener('click', e => { if (!e.target.closest('#langToggle')) document.getElementById('langDropdown').classList.remove('show'); });
+      document.querySelectorAll('.lang-option').forEach(opt => opt.addEventListener('click', e => setLanguage(e.target.dataset.lang)));
+
+      window.copyCode = function(elementId, btn) {
+        const code = document.getElementById(elementId).innerText;
+        const fallback = (text) => { const ta = document.createElement('textarea'); ta.value = text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); };
+        try { if (navigator.clipboard) navigator.clipboard.writeText(code); else fallback(code); } catch(e) { fallback(code); }
+        btn.innerHTML = '<i class="material-icons">check</i> ' + t('code.copied'); btn.classList.add('copied');
+        setTimeout(() => { btn.innerHTML = '<i class="material-icons">content_copy</i> ' + t('code.copy'); btn.classList.remove('copied'); }, 2000);
+      };
+
+      document.addEventListener('keydown', e => { if (e.key==='Escape') { closeDetail(); closeAuthModal(); closeNewPostModal(); closeProfileModal(); } });
+      document.getElementById('authModal').addEventListener('click', function(e){ if(e.target===this) closeAuthModal(); });
+      document.getElementById('newPostModal').addEventListener('click', function(e){ if(e.target===this) closeNewPostModal(); });
+      document.getElementById('detailOverlay').addEventListener('click', function(e){ if(e.target===this) closeDetail(); });
+      document.getElementById('profileModal').addEventListener('click', function(e){ if(e.target===this) closeProfileModal(); });
+    })();
+  </script>
+</body>
+</html>
